@@ -4,7 +4,6 @@
 )
 
 
-
 (defn parse [s]
    (xml/parse
     (java.io.ByteArrayInputStream. (.getBytes s))))
@@ -27,10 +26,11 @@
 (defn grab-body [opml] (get (:content opml) 1) )
 
 (defn xml-outline-to-internal-opml [outline]
-  (let [data {:text (->> outline :attrs :text)
-              :created (->> outline :attrs :created)}]
-    (cons data (map xml-outline-to-internal-opml (:content outline)))
-    )  )
+  (if (nil? outline) nil
+      (let [data {:text (->> outline :attrs :text)
+                  :created (->> outline :attrs :created)}]
+        (cons data (map xml-outline-to-internal-opml (:content outline)))
+        ))  )
 
 (defn get-body [opml]
   (let [body (grab-body opml)
@@ -44,16 +44,33 @@
   (let [xml (parse s)]
     (->Outline (get-head xml) (get-body xml))))
 
+
+(defn outline-tag-to-xml
+  ([outline depth]
+     (if (nil? outline) ""
+       (let [item (first outline)
+             subs (rest outline)]
+         (str
+          (apply str (repeat depth "\t") )
+          "<outline text='"
+          (:text item)
+          "' created='"
+          (:created item)
+          "'>\n"
+          (apply str (map #(outline-tag-to-xml % (+ depth 1)) subs))
+          "</outline>"))) )
+  ([outline] (outline-tag-to-xml outline 0)))
+
 (defn as-xml [outline]
   (let [head (:head outline)
         body (:body outline)
-        xml-head (str "\t<head>\n\t\t<title>" (:title head)  "</title>\n\t\t<dateModified>" (:dateModified head)
-                      "</dateModified>\n\t\t<expansionState>" (:expansionState head) "</expansionState>\n\t\t</head>\n")
-        xml-body (str "\t<body>" "\n\t\t</body>")]
+        xml-head (str "\t<head>\n\t\t<title>" (:title head)  "</title>\n\t\t<dateModified>" (:date-modified head)
+                      "</dateModified>\n\t\t<expansionState>" (:expansion-state head) "</expansionState>\n\t\t</head>\n")
+        xml-body (str "\t<body>" (outline-tag-to-xml body) "\n\t\t</body>")]
     (str "<?xml version='1.0'?>
 <opml version='2.0'>\n" xml-head
 xml-body
-"</opml>"
+"\n</opml>"
 ))
   )
 

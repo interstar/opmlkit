@@ -8,15 +8,23 @@
           simple-p (parse simple-xml)          ]
       (is (= simple-p {:tag :tagA, :attrs nil, :content [{:tag :tagB, :attrs nil, :content ["Hello Teenage America"]}]} ))
       (is (= (tags :tagB simple-p) '( {:tag :tagB, :attrs nil, :content ["Hello Teenage America"]}) ))
-      (is (= (first-tag :tagB simple-p) {:tag :tagB, :attrs nil, :content ["Hello Teenage Ameerica"]} ))
+      (is (= (first-tag :tagB simple-p) {:tag :tagB, :attrs nil, :content ["Hello Teenage America"]} ))
       )))
 
 (deftest test-xml-to-native
     (testing "Testing xml to native"
-      (let [outline {:tag :outline, :attrs {:text "<a href='#ObjectOriented'>ObjectOriented</a>", :created "Wed, 02 Oct 2013 21:04:39 GMT"}, :content nil}
-            out2 {:tag :outline, :attrs {:text "<a href='#ObjectOriented'>ObjectOriented</a>", :created "Wed, 02 Oct 2013 21:04:39 GMT"}, :content [{:tag :outline, :attrs {:text "SECOND LEVEL", :created "BEEP"}, :content nil}]}
-            out3 {:tag :outline, :attrs {:text "<a href='#ObjectOriented'>ObjectOriented</a>", :created "Wed, 02 Oct 2013 21:04:39 GMT"}, :content [{:tag :outline, :attrs {:text "SECOND LEVEL", :created "BEEP"}, :content [{:tag :outline, :attrs {:text "THIRD LEVEL", :created "BOOP"}, :content nil}]}]}
-            out4 {:tag :outline, :attrs {:text "<a href='#ObjectOriented'>ObjectOriented</a>", :created "Wed, 02 Oct 2013 21:04:39 GMT"}, :content [{:tag :outline, :attrs {:text "SECOND LEVEL", :created "BEEP"}, :content nil}
+      (let [outline {:tag :outline, :attrs {:text "<a href='#ObjectOriented'>ObjectOriented</a>",
+                                            :created "Wed, 02 Oct 2013 21:04:39 GMT"}, :content nil}
+            out2 {:tag :outline, :attrs {:text "<a href='#ObjectOriented'>ObjectOriented</a>",
+                                         :created "Wed, 02 Oct 2013 21:04:39 GMT"},
+                  :content [{:tag :outline, :attrs {:text "SECOND LEVEL", :created "BEEP"}, :content nil}]}
+            out3 {:tag :outline, :attrs {:text "<a href='#ObjectOriented'>ObjectOriented</a>",
+                                         :created "Wed, 02 Oct 2013 21:04:39 GMT"},
+                  :content [{:tag :outline, :attrs {:text "SECOND LEVEL", :created "BEEP"},
+                             :content [{:tag :outline, :attrs {:text "THIRD LEVEL", :created "BOOP"}, :content nil}]}]}
+            out4 {:tag :outline, :attrs {:text "<a href='#ObjectOriented'>ObjectOriented</a>",
+                                         :created "Wed, 02 Oct 2013 21:04:39 GMT"},
+                  :content [{:tag :outline, :attrs {:text "SECOND LEVEL", :created "BEEP"}, :content nil}
        {:tag :outline, :attrs {:text "ANOTHER 2nd", :created "BRAH"}, :content nil}  ]}   ]
         (is (= (xml-outline-to-internal-opml outline)
                '({:text "<a href='#ObjectOriented'>ObjectOriented</a>"
@@ -74,7 +82,8 @@
 
   (deftest test-into-outof
     (testing "Testing convert XML to and from internal format"
-      (let [test-it (fn [s] (is (= s (as-xml (make-opml s)))))]
+      (let [test-it (fn [s] (println s) (println (as-xml (make-opml s)))
+                      (is (= (parse s) (parse (as-xml (make-opml s))))))]
         (test-it "<?xml version='1.0'?>
 <opml version='2.0'>
 \t<head>
