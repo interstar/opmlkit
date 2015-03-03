@@ -4,11 +4,11 @@ A Clojure toolkit to work with outlines and OPML files
 
 ## Usage
 
-Coming soon
+Don't use it yet ... it's very embryonic. Only on GitHub and Clojars so I can inclue it within another project. API is completely unstable.
 
 ## License
 
-Copyright © 2015 FIXME
+Copyright © 2015 Phil Jones
 
-Distributed under the Gnu General Public License either version 2.0 or (at
+Distributed under the GNU Lesser General Public License either version 3.0 or (at
 your option) any later version.
