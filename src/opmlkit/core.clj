@@ -1,8 +1,6 @@
 (ns opmlkit.core
   (require [clojure.xml :as xml]
-           [clojure.zip :as zip] )
-)
-
+           [clojure.zip :as zip]  ))
 
 (defn parse [s]
    (xml/parse
@@ -83,26 +81,21 @@
 <opml version='2.0'>\n" xml-head
 xml-body
 "\n\t</opml>"
-))
-  )
+))  )
 
 (defn pp-outline
   ([outline depth]
-     (let [item (first outline)
+      (let [item (first outline)
            subs (rest outline)]
        (str
         (apply str (repeat depth "  ") )
         (:text item)
         "\n"
-        (apply str (map #(pp-outline % (+ depth 1)) subs)) )) )
+        (apply str (map #(pp-outline % (+ depth 1)) subs)) )))
   ([outline] (pp-outline outline 0)))
 
-(defn -main [& args ]
-  (let [o1 (make-opml (slurp (first args)))
-        o2 (make-opml (slurp (second args)))
-        ]
 
-    (println o1)
-    (println (pp-outline (:body o1)))
-    )
-  )
+
+
+;; Main
+(defn -main [& args ]   )
