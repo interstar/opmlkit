@@ -34,8 +34,8 @@
 
 (defn get-body [opml]
   (let [body (grab-body opml)
-        outline (first-tag :outline body)]
-    (xml-outline-to-internal-opml outline )
+        top-level-outlines (tags :outline body)]
+    (map xml-outline-to-internal-opml top-level-outlines )
     ))
 
 (defrecord Outline [head body])
@@ -45,20 +45,29 @@
     (->Outline (get-head xml) (get-body xml))))
 
 
+(defn escapes [s]
+  (apply str (map (fn [x]
+                    (cond (= x \<) "&lt;"
+                          (= x \>) "&gt;"
+                          (= x \") "&quot;"
+                          :otherwise x)) s))
+)
+
 (defn outline-tag-to-xml
   ([outline depth]
-     (if (nil? outline) ""
+     (if (empty? outline) ""
        (let [item (first outline)
              subs (rest outline)]
          (str
           (apply str (repeat depth "\t") )
           "<outline text='"
-          (:text item)
+          (escapes (:text item))
           "' created='"
           (:created item)
           "'>\n"
           (apply str (map #(outline-tag-to-xml % (+ depth 1)) subs))
-          "</outline>"))) )
+          (apply str (repeat (+ 1 depth) "\t") )
+          "</outline>\n"))) )
   ([outline] (outline-tag-to-xml outline 0)))
 
 (defn as-xml [outline]
@@ -66,11 +75,14 @@
         body (:body outline)
         xml-head (str "\t<head>\n\t\t<title>" (:title head)  "</title>\n\t\t<dateModified>" (:date-modified head)
                       "</dateModified>\n\t\t<expansionState>" (:expansion-state head) "</expansionState>\n\t\t</head>\n")
-        xml-body (str "\t<body>" (outline-tag-to-xml body) "\n\t\t</body>")]
+        xml-body (if (empty? body) "\t<body></body>"
+                     (str "\t<body>\n"
+                          (apply str  (map (fn [o] (outline-tag-to-xml o 2)) body))
+                          "\t\t</body>"))]
     (str "<?xml version='1.0'?>
 <opml version='2.0'>\n" xml-head
 xml-body
-"\n</opml>"
+"\n\t</opml>"
 ))
   )
 
@@ -90,6 +102,7 @@ xml-body
         o2 (make-opml (slurp (second args)))
         ]
 
+    (println o1)
     (println (pp-outline (:body o1)))
     )
   )
